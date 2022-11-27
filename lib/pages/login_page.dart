@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:hiveapp/pages/home_page.dart';
+import 'package:hiveapp/services/db_service.dart';
+
+import '../model/user_model.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,6 +15,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController parolController = TextEditingController();
+  
+   bool isLogin =false;
+
 
   _login() {
 
@@ -19,14 +26,19 @@ class _LoginPageState extends State<LoginPage> {
 
     var box = Hive.box("nem_nig");
     
-    //saqlash
-    box.put("email", email);
-    box.put("parol",parol);
+    User user = User(email: email,parol: parol);
+
+    HiveDB().saveUser(user);
+    User dbUser = HiveDB().getUser();
 
 
-    //olish
-    print(box.get("email"));
-    print(box.get("parol"));
+     print(dbUser.email);
+     print(dbUser.parol);
+
+   setState(() {
+     isLogin = true;
+   });
+    box.put("isLogin",isLogin);
     
   }
 
@@ -62,9 +74,10 @@ class _LoginPageState extends State<LoginPage> {
           ElevatedButton(
               onPressed: () {
                 _login();
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>HomePage()));
               },
-              child: const Text("Login")),
-              Text(Hive.box("nem_nig").get("email")??" ")
+              child: const Text("Login"),),
+              Text(Hive.box("nem_nig").get("email")??""),
         ]),
       ),
     );
